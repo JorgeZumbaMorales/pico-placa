@@ -13,7 +13,7 @@ import {
 })
 export class PicoPlacaService {
 
-  private apiUrl = 'http://localhost:8080/api/pico-placa';
+  private apiUrl = 'https://pico-placa-api-ipgk.onrender.com/api/pico-placa';
 
   constructor(private http: HttpClient) {}
 
