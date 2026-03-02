@@ -1,59 +1,79 @@
-# PicoPlaca
+# 🚗 Pico y Placa - Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.0.
+Aplicación web desarrollada en **Angular 21.2.0** para validar la circulación vehicular según la normativa de Pico y Placa.
 
-## Development server
+Esta aplicación consume una API REST desarrollada en Spring Boot y desplegada en Render.
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
-```
+##  Información del Proyecto
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Nombre: pico-placa
+- Package Manager: npm 11.6.2
+- Arquitectura: Standalone Components
+- Deploy: Netlify
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+##  Tecnologías y Versiones
 
-```bash
-ng generate component component-name
-```
+###  Core
+- Angular 21.2.0
+- TypeScript 5.9.2
+- RxJS 7.8.0
+- Node Types 20.17.19
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+###  UI
+- PrimeNG 21.1.1
+- PrimeIcons 7.0.0
+- @primeuix/themes 2.0.3
+- TailwindCSS 4.2.1
+- tailwindcss-primeui 0.6.1
 
-```bash
-ng generate --help
-```
+## 🌐 Deploy en Producción
 
-## Building
+Frontend disponible en:
 
-To build the project run:
+    https://pico-placa-jzm.netlify.app/
 
-```bash
-ng build
-```
+Backend conectado a:
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+    https://pico-placa-api-ipgk.onrender.com/api/pico-placa
 
-## Running unit tests
+---
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+##  Funcionalidades
 
-```bash
-ng test
-```
+- Validación de placa con máscara
+- Selección de fecha y hora (formato 24h)
+- Resultado dinámico con estado visual (Permitido / Restringido)
+- Toast de confirmación de consulta exitosa
+- Historial de consultas
+- Eliminación individual
+- Modal para confirmación de la elimincación de un registro
+- Tabla con paginación
+- Interfaz moderna y responsiva
 
-## Running end-to-end tests
+---
 
-For end-to-end (e2e) testing, run:
+##  Arquitectura
 
-```bash
-ng e2e
-```
+Estructura basada en features
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+##  Ejecutar Localmente
 
-## Additional Resources
+1. Clonar repositorio:
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+git clone https://github.com/JorgeZumbaMorales/pico-placa.git
+
+2. Instalar dependencias:
+
+npm install
+
+3. Ejecutar en desarrollo:
+
+npm start
+
+Disponible en:
+
+http://localhost:4200
