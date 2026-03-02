@@ -1,4 +1,4 @@
-# 🚗 Pico y Placa - Frontend
+# Pico y Placa - Frontend
 
 Aplicación web desarrollada en **Angular 21.2.0** para validar la circulación vehicular según la normativa de Pico y Placa.
 
