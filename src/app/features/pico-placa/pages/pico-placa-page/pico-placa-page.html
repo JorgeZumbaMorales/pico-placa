@@ -1,1 +1,183 @@
-<p>pico-placa-page works!</p>
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+<div class="min-h-screen grid grid-cols-1 md:grid-cols-2">
+  <div class="flex items-center justify-center bg-slate-900 p-10">
+    <p-card header="Consulta Pico y Placa" class="w-full max-w-lg shadow-2xl">
+      <div class="text-gray-700 space-y-4">
+        <p class="text-base leading-relaxed">
+          Esta aplicación permite validar si un vehículo puede circular en una fecha y hora
+          determinada.
+        </p>
+
+        <p-divider></p-divider>
+
+        <ul class="space-y-3">
+          <li class="flex items-center gap-2">
+            <i class="pi pi-check-circle text-blue-500"></i>
+            Ingrese la placa en formato ABC-1234
+          </li>
+          <li class="flex items-center gap-2">
+            <i class="pi pi-check-circle text-blue-500"></i>
+            Seleccione una fecha futura
+          </li>
+          <li class="flex items-center gap-2">
+            <i class="pi pi-check-circle text-blue-500"></i>
+            Validación realizada en backend
+          </li>
+        </ul>
+      </div>
+    </p-card>
+  </div>
+  <div class="flex items-center justify-center bg-gray-100 p-10">
+    <div class="w-full max-w-md space-y-6">
+      <p-card header="Validar circulación" class="shadow-xl">
+        <form [formGroup]="form" (ngSubmit)="consultar()" class="space-y-6">
+          <!-- PLACA -->
+          <p-iftalabel>
+            <p-inputMask
+              formControlName="placa"
+              inputId="placa"
+              mask="aaa-9999"
+              slotChar=""
+              styleClass="w-full uppercase"
+              [autoClear]="false"
+            >
+            </p-inputMask>
+            <label for="placa">Placa</label>
+          </p-iftalabel>
+
+          <!-- FECHA Y HORA -->
+          <p-iftalabel>
+            <p-datepicker
+              formControlName="fechaHora"
+              inputId="fechaHora"
+              [showTime]="true"
+              hourFormat="24"
+              [minDate]="minDate"
+              [readonlyInput]="true"
+              showIcon
+              iconDisplay="input"
+              class="w-full"
+            >
+            </p-datepicker>
+            <label for="fechaHora">Fecha y Hora</label>
+          </p-iftalabel>
+
+          <p-button
+            label="Consultar"
+            icon="pi pi-search"
+            type="submit"
+            [disabled]="form.invalid"
+            class="w-full"
+          >
+          </p-button>
+        </form>
+        <div class="mt-4">
+          <p-button
+            label="Ver Historial"
+            icon="pi pi-list"
+            severity="secondary"
+            (onClick)="cargarHistorial()"
+          >
+          </p-button>
+        </div>
+      </p-card>
+      <div *ngIf="resultado()" class="p-4 rounded-xl shadow bg-white border">
+        <div class="flex justify-between items-center mb-3">
+          <span class="font-semibold"> Placa: {{ resultado()?.placa }} </span>
+
+          <p-tag
+            [severity]="resultado()?.puedeCircular ? 'success' : 'danger'"
+            [value]="resultado()?.puedeCircular ? 'Permitido' : 'Restringido'"
+          >
+          </p-tag>
+        </div>
+
+        <p class="text-gray-700">
+          {{ resultado()?.mensaje }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+<p-dialog
+  header="Historial de Consultas"
+  [visible]="mostrarHistorial()"
+  (onHide)="mostrarHistorial.set(false)"
+  [modal]="true"
+  [style]="{ width: '70vw' }"
+  [closable]="true"
+  (onHide)="mostrarHistorial.set(false)"
+>
+  <p-table
+    #dt
+    [value]="historial()"
+    [paginator]="true"
+    [rows]="5"
+    [globalFilterFields]="['placa', 'fechaHora']"
+    [tableStyle]="{ 'min-width': '60rem' }"
+  >
+    <ng-template pTemplate="caption">
+      <div class="flex">
+        <p-iconfield iconPosition="left" class="ml-auto">
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input
+            pInputText
+            type="text"
+            (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+            placeholder="Buscar..."
+          />
+        </p-iconfield>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="placa">
+          Placa
+          <p-sortIcon field="placa"></p-sortIcon>
+        </th>
+
+        <th pSortableColumn="fechaHora">
+          Fecha Consulta
+          <p-sortIcon field="fechaHora"></p-sortIcon>
+        </th>
+
+        <th pSortableColumn="puedeCircular">
+          Estado
+          <p-sortIcon field="puedeCircular"></p-sortIcon>
+        </th>
+
+        <!-- NUEVA COLUMNA -->
+        <th style="width: 4rem">Acciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td>{{ item.placa }}</td>
+        <td>{{ item.fechaHora | date: 'short' }}</td>
+        <td>
+          <p-tag
+            [severity]="item.puedeCircular ? 'success' : 'danger'"
+            [value]="item.puedeCircular ? 'Permitido' : 'Restringido'"
+          >
+          </p-tag>
+        </td>
+
+        <!-- BOTÓN ELIMINAR -->
+        <td class="text-center">
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            [outlined]="true"
+            (onClick)="confirmarEliminacion($event, item)"
+          >
+          </p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>
