@@ -18,7 +18,10 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { IftaLabelModule } from 'primeng/iftalabel';
 import { InputMaskModule } from 'primeng/inputmask';
-
+import { TooltipModule } from 'primeng/tooltip';
+type PicoPlacaResultado = PicoPlacaResponse & {
+  fechaConsultada: Date;
+};
 @Component({
   selector: 'app-pico-placa-page',
   standalone: true,
@@ -40,9 +43,12 @@ import { InputMaskModule } from 'primeng/inputmask';
     ToastModule,
     IftaLabelModule,
     InputMaskModule,
+    TooltipModule
   ],
   templateUrl: './pico-placa-page.html'
 })
+
+
 export class PicoPlacaPage {
 
   private servicio = inject(PicoPlacaService);
@@ -50,17 +56,17 @@ export class PicoPlacaPage {
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
 
-  resultado = signal<PicoPlacaResponse | null>(null);
+  resultado = signal<PicoPlacaResultado | null>(null);
   historial = signal<HistorialConsultaRespuesta[]>([]);
   mostrarHistorial = signal(false);
   minDate: Date = new Date();
+
   form = this.fb.group({
     placa: ['', Validators.required],
     fechaHora: [null as Date | null, Validators.required]
   });
 
   consultar() {
-
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.messageService.add({
@@ -68,22 +74,31 @@ export class PicoPlacaPage {
         summary: 'Campos incompletos',
         detail: 'Debe completar todos los campos antes de consultar.'
       });
-
       return;
     }
-
     const { placa, fechaHora } = this.form.value;
     const placaNormalizada = placa?.toUpperCase().trim();
     const fechaFormateada = (fechaHora as Date)
       .toLocaleString('sv-SE')
       .replace(' ', 'T');
-
     this.servicio.validar({
       placa: placaNormalizada!,
       fechaHora: fechaFormateada
     }).subscribe({
       next: resp => {
-        this.resultado.set(resp);
+
+        const fechaConsultada = fechaHora as Date;
+
+        this.resultado.set({
+          ...resp,
+          fechaConsultada
+        });
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Consulta realizada',
+          detail: 'La validación se realizó correctamente.',
+          life: 3000
+        });
         this.form.reset();
         this.form.markAsPristine();
         this.form.markAsUntouched();
@@ -93,7 +108,6 @@ export class PicoPlacaPage {
       }
     });
   }
-
   cargarHistorial() {
     this.servicio.obtenerHistorial(0, 50)
       .subscribe(resp => {
@@ -101,7 +115,6 @@ export class PicoPlacaPage {
         this.mostrarHistorial.set(true);
       });
   }
-
   confirmarEliminacion(event: Event, item: HistorialConsultaRespuesta) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
@@ -133,31 +146,21 @@ export class PicoPlacaPage {
       }
     });
   }
-
   private manejarError(error: any) {
-
     let mensaje = 'Ocurrió un error inesperado';
-
-    // 🔥 Caso 1: errores por campo (objeto dinámico)
     if (error?.error && typeof error.error === 'object') {
-
       const errores = Object.values(error.error);
 
       if (errores.length > 0) {
         mensaje = errores.join(' - ');
       }
     }
-
-    // Caso 2: backend devuelve string directo
     else if (typeof error?.error === 'string') {
       mensaje = error.error;
     }
-
-    // Caso 3: error 500
     else if (error?.status >= 500) {
       mensaje = 'Error interno del servidor. Intente más tarde.';
     }
-
     this.messageService.add({
       severity: 'warn',
       summary: 'Advertencia',

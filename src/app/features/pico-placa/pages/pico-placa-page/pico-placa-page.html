@@ -1,38 +1,47 @@
 <p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
 <div class="min-h-screen grid grid-cols-1 md:grid-cols-2">
-  <div class="flex items-center justify-center bg-slate-900 p-10">
-    <p-card header="Consulta Pico y Placa" class="w-full max-w-lg shadow-2xl">
-      <div class="text-gray-700 space-y-4">
-        <p class="text-base leading-relaxed">
-          Esta aplicación permite validar si un vehículo puede circular en una fecha y hora
-          determinada.
+  <div class="flex items-center justify-center bg-slate-900 p-10 min-h-screen">
+    <p-card class="w-full max-w-lg shadow-2xl rounded-2xl p-6">
+      <ng-template pTemplate="header">
+        <h2 class="text-xl font-semibold text-center text-slate-800">Consulta Pico y Placa</h2>
+      </ng-template>
+
+      <div class="text-gray-600 space-y-5 mt-2">
+        <p class="text-base leading-relaxed text-center">
+          Verifique si un vehículo puede circular en la fecha y hora seleccionadas.
         </p>
 
         <p-divider></p-divider>
 
-        <ul class="space-y-3">
-          <li class="flex items-center gap-2">
-            <i class="pi pi-check-circle text-blue-500"></i>
-            Ingrese la placa en formato ABC-1234
+        <ul class="space-y-4">
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-blue-500 text-lg"></i>
+            <span>Ingrese la placa en formato <strong>ABC-1234</strong></span>
           </li>
-          <li class="flex items-center gap-2">
-            <i class="pi pi-check-circle text-blue-500"></i>
-            Seleccione una fecha futura
+
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-blue-500 text-lg"></i>
+            <span>Seleccione la fecha y hora de consulta</span>
           </li>
-          <li class="flex items-center gap-2">
-            <i class="pi pi-check-circle text-blue-500"></i>
-            Validación realizada en backend
+
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-blue-500 text-lg"></i>
+            <span>El sistema valida automáticamente la restricción correspondiente</span>
           </li>
         </ul>
       </div>
     </p-card>
   </div>
-  <div class="flex items-center justify-center bg-gray-100 p-10">
+
+  <div class="flex items-center justify-center bg-gray-100 p-10 min-h-screen">
     <div class="w-full max-w-md space-y-6">
-      <p-card header="Validar circulación" class="shadow-xl">
+      <p-card class="shadow-xl rounded-2xl">
+        <ng-template pTemplate="header">
+          <h2 class="text-xl font-semibold text-center py-4">Validar circulación</h2>
+        </ng-template>
+
         <form [formGroup]="form" (ngSubmit)="consultar()" class="space-y-6">
-          <!-- PLACA -->
           <p-iftalabel>
             <p-inputMask
               formControlName="placa"
@@ -46,7 +55,6 @@
             <label for="placa">Placa</label>
           </p-iftalabel>
 
-          <!-- FECHA Y HORA -->
           <p-iftalabel>
             <p-datepicker
               formControlName="fechaHora"
@@ -63,28 +71,48 @@
             <label for="fechaHora">Fecha y Hora</label>
           </p-iftalabel>
 
-          <p-button
-            label="Consultar"
-            icon="pi pi-search"
-            type="submit"
-            [disabled]="form.invalid"
-            class="w-full"
-          >
-          </p-button>
+          <div class="flex justify-center gap-4 pt-4">
+            <div
+              pTooltip="Complete todos los campos"
+              tooltipPosition="top"
+              [tooltipDisabled]="!form.invalid"
+            >
+              <p-button
+                label="Consultar"
+                icon="pi pi-search"
+                type="submit"
+                [disabled]="form.invalid"
+                severity="success"
+              >
+              </p-button>
+            </div>
+
+            <p-button
+              label="Historial"
+              icon="pi pi-list"
+              severity="secondary"
+              (onClick)="cargarHistorial()"
+            >
+            </p-button>
+          </div>
         </form>
-        <div class="mt-4">
-          <p-button
-            label="Ver Historial"
-            icon="pi pi-list"
-            severity="secondary"
-            (onClick)="cargarHistorial()"
-          >
-          </p-button>
-        </div>
       </p-card>
-      <div *ngIf="resultado()" class="p-4 rounded-xl shadow bg-white border">
-        <div class="flex justify-between items-center mb-3">
-          <span class="font-semibold"> Placa: {{ resultado()?.placa }} </span>
+
+      <div
+        *ngIf="resultado()"
+        class="p-5 rounded-2xl shadow-md bg-white border border-gray-200 mt-6 transition"
+      >
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-800">
+              {{ resultado()?.placa }}
+            </h3>
+
+            <p class="text-sm text-gray-500">
+              {{ resultado()?.fechaConsultada | date: "EEEE, d 'de' MMMM 'de' y" }} —
+              {{ resultado()?.fechaConsultada | date: 'HH:mm' }}
+            </p>
+          </div>
 
           <p-tag
             [severity]="resultado()?.puedeCircular ? 'success' : 'danger'"
@@ -93,9 +121,9 @@
           </p-tag>
         </div>
 
-        <p class="text-gray-700">
+        <div class="text-gray-700 text-base">
           {{ resultado()?.mensaje }}
-        </p>
+        </div>
       </div>
     </div>
   </div>
@@ -107,7 +135,6 @@
   [modal]="true"
   [style]="{ width: '70vw' }"
   [closable]="true"
-  (onHide)="mostrarHistorial.set(false)"
 >
   <p-table
     #dt
@@ -115,7 +142,10 @@
     [paginator]="true"
     [rows]="5"
     [globalFilterFields]="['placa', 'fechaHora']"
-    [tableStyle]="{ 'min-width': '60rem' }"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    [showCurrentPageReport]="true"
+    [paginatorDropdownAppendTo]="'body'"
+    styleClass="text-sm w-full"
   >
     <ng-template pTemplate="caption">
       <div class="flex">
@@ -126,6 +156,7 @@
           <input
             pInputText
             type="text"
+            class="w-64"
             (input)="dt.filterGlobal($any($event.target).value, 'contains')"
             placeholder="Buscar..."
           />
@@ -135,31 +166,34 @@
 
     <ng-template pTemplate="header">
       <tr>
-        <th pSortableColumn="placa">
+        <th class="py-2 px-3" pSortableColumn="placa">
           Placa
           <p-sortIcon field="placa"></p-sortIcon>
         </th>
 
-        <th pSortableColumn="fechaHora">
+        <th class="py-2 px-3" pSortableColumn="fechaHora">
           Fecha Consulta
           <p-sortIcon field="fechaHora"></p-sortIcon>
         </th>
 
-        <th pSortableColumn="puedeCircular">
+        <th class="py-2 px-3" pSortableColumn="puedeCircular">
           Estado
           <p-sortIcon field="puedeCircular"></p-sortIcon>
         </th>
 
-        <!-- NUEVA COLUMNA -->
-        <th style="width: 4rem">Acciones</th>
+        <th class="py-2 px-3 text-center" style="width: 4rem">Acciones</th>
       </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-item>
-      <tr>
-        <td>{{ item.placa }}</td>
-        <td>{{ item.fechaHora | date: 'short' }}</td>
-        <td>
+      <tr class="hover:bg-gray-50 transition">
+        <td class="py-2 px-3">{{ item.placa }}</td>
+
+        <td class="py-2 px-3">
+          {{ item.fechaHora | date: 'short' }}
+        </td>
+
+        <td class="py-2 px-3">
           <p-tag
             [severity]="item.puedeCircular ? 'success' : 'danger'"
             [value]="item.puedeCircular ? 'Permitido' : 'Restringido'"
@@ -167,12 +201,12 @@
           </p-tag>
         </td>
 
-        <!-- BOTÓN ELIMINAR -->
-        <td class="text-center">
+        <td class="py-2 px-3 text-center">
           <p-button
             icon="pi pi-trash"
             severity="danger"
             [outlined]="true"
+            size="small"
             (onClick)="confirmarEliminacion($event, item)"
           >
           </p-button>

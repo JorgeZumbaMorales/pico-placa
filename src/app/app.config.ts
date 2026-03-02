@@ -4,12 +4,16 @@ import { provideRouter } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { routes } from './app.routes';
-
+import { LOCALE_ID } from '@angular/core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideHttpClient(),
+    {
+      provide: LOCALE_ID,
+      useValue: 'es-EC'
+    },
     providePrimeNG({
       theme: {
         preset: Aura,
